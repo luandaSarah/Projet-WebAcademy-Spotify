@@ -29,69 +29,83 @@ function Search() {
     console.log(filter)
     console.log(search)
 
+    
     useEffect(() => {
 
-        if (filter == "genre") {
+        const fetchSerch = async () => {
 
-            fetch(`http://localhost:8000/search?query=${search}&type=${filter}`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                },
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    console.log(data)
-
-                    setGenres(data);
-                })
-
-        } else if (filter == "albums") {
-            fetch(`http://localhost:8000/Albums?page=${page}&limit=20`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                },
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    console.log(data)
-
-                    setAlbums((prevAlbums) => {
+            if (filter == "genre") {
+      try {
+      
+             const res = await fetch(`http://localhost:8000/search?query=${search}&type=${filter}`);
+      
+             if(!res.ok) {
+              console.error(`Erreur HTTP ! statut : ${res.status}`);
+             }
+                  const data = await res.json();
+                      console.log(data)
+                      setAlbums((prevAlbums) => {
                         const updatedAlbums = [...prevAlbums];
                         data.forEach(album => {
-                            if (!updatedAlbums.find(a => a.id === album.id)) {
-                                updatedAlbums.push(album);
-                            }
+                          if (!updatedAlbums.find(a => a.id === album.id)) {
+              
+                            updatedAlbums.push(album);
+                          }
                         });
                         return updatedAlbums;
-                    });
-                });
+                      });
 
-        } else if (filter == "artists") {
-            fetch(`http://localhost:8000/Artists?page=${page}&limit=20`, {
-                method: "GET",
-                headers: {
-                    "Accept": "application/json",
-                    "Content-Type": "application/json",
-                },
-            })
-                .then((res) => res.json())
-                .then((data) => {
 
-                    setArtists((prevArtists) => {
-                        const updatedArtists = [...prevArtists];
-                        data.forEach(artist => {
-                            if (!updatedArtists.find(a => a.id === artist.id)) {
-                                updatedArtists.push(artist);
-                            }
-                        })
-                        return updatedArtists;
+              } catch(error) {
+                  console.error(`Erreur lors de la requête : ${error}`)
+              }}
+
+         else if (filter == "albums") {
+            const res = await  fetch(`http://localhost:8000/Albums?page=${page}&limit=20`) ;
+            try {
+       if(!res.ok) {
+        console.error(`Erreur HTTP ! statut : ${res.status}`);
+       }
+            const data = await res.json();
+                console.log(data)
+                setAlbums((prevAlbums) => {
+                    const updatedAlbums = [...prevAlbums];
+                    data.forEach(album => {
+                        if (!updatedAlbums.find(a => a.id === album.id)) {
+                            updatedAlbums.push(album);
+                        }
                     });
+                    return updatedAlbums;
                 });
-        }
+        } catch(error) {
+            console.error(`Erreur lors de la requête : ${error}`)
+        }}
+
+         else if (filter == "artists") {
+            try {
+    
+                const res = await fetch(`http://localhost:8000/Artists?page=${page}&limit=20`);
+         
+                if(!res.ok) {
+                 console.error(`Erreur HTTP ! statut : ${res.status}`);
+                }
+                     const data = await res.json();
+                         console.log(data)
+                         setArtists((prevArtists) => {
+                             const updatedArtists = [...prevArtists];
+                             console.log(prevArtists);
+                             data.forEach(artist => {
+                                 if (!updatedArtists.find(a => a.id === artist.id)) {
+                                     updatedArtists.push(artist);
+                                 }
+                             });
+                             return updatedArtists;
+                         });
+                 } catch(error) {
+                     console.error(`Erreur lors de la requête : ${error}`)
+                 }
+        }}
+        fetchSerch();
 
     }, [page, search, filter]);
 
@@ -177,10 +191,10 @@ function Search() {
             <div className="container">
 
                 {albResult.map(album => (
-                    <NavigateDetails info={album} onClick={() => handleClick(album.id, "album")} />
+                    <NavigateDetails key={album.id} info={album} onClick={() => handleClick(album.id, "album")} />
                 ))}
                 {artResult.map(artist => (
-                    <NavigateDetails info={artist} onClick={() => handleClick(artist.id, "artist")} />
+                    <NavigateDetails key={artist.id} info={artist} onClick={() => handleClick(artist.id, "artist")} />
                 ))}
 
             </div>

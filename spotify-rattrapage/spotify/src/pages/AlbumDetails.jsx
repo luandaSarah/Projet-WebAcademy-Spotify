@@ -11,24 +11,28 @@ function AlbumDetails() {
     let param = useParams().id.slice(1);
 
 
-    useEffect(() => {
-        fetch(`http://localhost:8000/albums/${param}`, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-            },
-        })
-            .then((res) => res.json())
-            .then((data) => {
+    useEffect( ()=> {
+        const fetchDetails = async () => {
+        try {
+
+       const res = await fetch(`http://localhost:8000/albums/${param}`);
+
+       if(!res.ok) {
+        console.error(`Erreur HTTP ! statut : ${res.status}`);
+       }
+            const data = await res.json();
                 console.log(data)
                 setAlbumDetails(data.album);
                 setAlbumTracks(data.tracks);
-            });
+           
+        } catch(error) {
+            console.error(`Erreur lors de la requête : ${error}`)
+        }}
 
-
+        fetchDetails();
     }, []);
 
+ 
 
     console.log(param);
     // setAlbumId(param);

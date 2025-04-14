@@ -10,31 +10,33 @@ function AllAlbums() {
 
     const [page, setPage] = useState(0);
 
+ useEffect( ()=> {
+        const fetchAlbums= async () => {
+        try {
 
-    useEffect(() => {
-        fetch(`http://localhost:8000/albums?page=${page}&limit=20`, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-            },
-        })
-            .then((res) => res.json())
-            .then((newAlbums) => {
-                // console.log(newAlbums)
+       const res = await fetch(`http://localhost:8000/albums?page=${page}&limit=20`);
 
+       if(!res.ok) {
+        console.error(`Erreur HTTP ! statut : ${res.status}`);
+       }
+            const data = await res.json();
+                console.log(data)
                 setAlbums((prevAlbums) => {
                     const updatedAlbums = [...prevAlbums];
-                    newAlbums.forEach(album => {
+                    data.forEach(album => {
                         if (!updatedAlbums.find(a => a.id === album.id)) {
                             updatedAlbums.push(album);
                         }
                     });
                     return updatedAlbums;
                 });
-            });
+        } catch(error) {
+            console.error(`Erreur lors de la requête : ${error}`)
+        }}
 
+        fetchAlbums();
     }, [page]);
+
 
     console.log(albums);
 
@@ -77,7 +79,7 @@ function AllAlbums() {
         <NavBar />
         <div className="container">
         {albums.map(album => (
-            <NavigateDetails albumP={album} onClick={()=> handleClick(album.id)}/>
+            <NavigateDetails key={album.id} albumP={album} onClick={()=> handleClick(album.id)}/>
         ))}
         </div>
     </>

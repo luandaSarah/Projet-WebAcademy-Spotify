@@ -7,22 +7,6 @@ import TopButton from "./Components/TopButton"
 function HomePage() {
 
   const [albums, setAlbums] = useState([]);
-  // const [random, setRandom] = useState(1)
-
-
-  // useEffect(() => {
-
-  //   const randomNumberInRange = (min, max) => {
-  //     return Math.floor(Math.random()
-  //       * (max - min + 1)) + min;
-  //   };
-
-  //   setRandom(randomNumberInRange(1, 1625));
-
-
-  //   // setRandom(randomNumberInRange(1, 1625)
-  // }, []);
-  // console.log(random);
 
   const randomNumberInRange = (min, max) => {
     return Math.floor(Math.random()
@@ -30,39 +14,37 @@ function HomePage() {
   };
 
 
-  useEffect(() => {
-    // console.log(randomNumberInRange(1,1625))
+
+   useEffect( ()=> {
+          const fetchAlbums= async () => {
+          try {
+  
+         const res = await fetch(`http://localhost:8000/albums?page=${randomNumberInRange(1, 50)}&limit=12`);
+  
+         if(!res.ok) {
+          console.error(`Erreur HTTP ! statut : ${res.status}`);
+         }
+              const data = await res.json();
+                  console.log(data)
+                  setAlbums((prevAlbums) => {
+                    const updatedAlbums = [...prevAlbums];
+                    data.forEach(album => {
+                      if (!updatedAlbums.find(a => a.id === album.id)) {
+                        updatedAlbums.push(album);
+                      }
+                    });
+                    return updatedAlbums;
+          
+                  });
+          } catch(error) {
+              console.error(`Erreur lors de la requête : ${error}`)
+          }}
+  
+          fetchAlbums();
+      }, []);
 
 
-    fetch(`http://localhost:8000/albums?page=${randomNumberInRange(1, 50)}&limit=12`, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data)
-
-
-        setAlbums((prevAlbums) => {
-          const updatedAlbums = [...prevAlbums];
-          data.forEach(album => {
-            if (!updatedAlbums.find(a => a.id === album.id)) {
-              updatedAlbums.push(album);
-            }
-          });
-          return updatedAlbums;
-
-        });
-
-      });
-
-
-
-  }, []);
-
+  
   function NavigateDetails({ albumP, onClick }) {
 
     return <>
@@ -87,7 +69,7 @@ function HomePage() {
     <div className="container">
 
       {albums.map(album => (
-      <NavigateDetails albumP={album} onClick={() => handleClick(album.id)} />
+      <NavigateDetails key={album.id} albumP={album} onClick={() => handleClick(album.id)} />
 
       ))}
 

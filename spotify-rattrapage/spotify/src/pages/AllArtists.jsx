@@ -12,31 +12,38 @@ function AllArtists() {
     const [page, setPage] = useState(0);
 
 
-    useEffect(() => {
-        fetch(`http://localhost:8000/Artists?page=${page}&limit=20`, {
-            method: "GET",
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-            },
-        })
-            .then((res) => res.json())
-            .then((newArtists) => {
-                // console.log(Artists)
 
-                setArtists((prevArtists) => {
-                    const updatedArtists = [...prevArtists];
-                    newArtists.forEach(artist => {
-                        if (!updatedArtists.find(a => a.id === artist.id)) {
-                            updatedArtists.push(artist);
-                        }
+     useEffect( ()=> {
+            const fetchAllbums= async () => {
+            try {
+    
+           const res = await fetch(`http://localhost:8000/Artists?page=${page}&limit=20`);
+    
+           if(!res.ok) {
+            console.error(`Erreur HTTP ! statut : ${res.status}`);
+           }
+                const data = await res.json();
+                    console.log(data)
+                    setArtists((prevArtists) => {
+                        const updatedArtists = [...prevArtists];
+                        console.log(prevArtists);
+                        data.forEach(artist => {
+                            if (!updatedArtists.find(a => a.id === artist.id)) {
+                                updatedArtists.push(artist);
+                            }
+                        });
+                        return updatedArtists;
                     });
-                    return updatedArtists;
-                });
-            });
+            } catch(error) {
+                console.error(`Erreur lors de la requête : ${error}`)
+            }}
+    
+            fetchAllbums();
+        }, [page]);
+    
+    
 
-    }, [page]);
-
+    
     console.log(Artists);
 
 
@@ -77,7 +84,7 @@ function AllArtists() {
         <NavBar />
         <div className="container">
             {Artists.map(artist => (
-                <NavigateDetails artistP={artist} onClick={() => handleClick(artist.id)} />
+                <NavigateDetails key={artist.id} artistP={artist} onClick={() => handleClick(artist.id)} />
 
             ))}
         </div>

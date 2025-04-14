@@ -17,23 +17,29 @@ function GenreDetails() {
 
 
 
-  useEffect(() => {
-    fetch(`http://localhost:8000/genres/${param}`, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data)
-        setGenreName(data.genre);
-        setGenreAlbumId(data.albums);
-      });
 
-  }, []);
 
+    useEffect( ()=> {
+            const fetchDetails = async () => {
+            try {
+    
+           const res = await fetch(`http://localhost:8000/genres/${param}`);
+    
+           if(!res.ok) {
+            console.error(`Erreur HTTP ! statut : ${res.status}`);
+           }
+                const data = await res.json();
+                    console.log(data)
+                    setGenreName(data.genre);
+                    setGenreAlbumId(data.albums);
+               
+            } catch(error) {
+                console.error(`Erreur lors de la requête : ${error}`)
+            }}
+    
+            fetchDetails();
+        }, []);
+   
 
   //  genreAlbumsId.forEach(id =>{
 
@@ -41,48 +47,37 @@ function GenreDetails() {
 
   //  });
 
-  useEffect(() => {
+ 
 
-
-    fetch(`http://localhost:8000/Albums?page=${page}&limit=20`, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(data)
-
-
-        setAlbums((prevAlbums) => {
-          const updatedAlbums = [...prevAlbums];
-          data.forEach(album => {
-            if (!updatedAlbums.find(a => a.id === album.id)) {
-
-              updatedAlbums.push(album);
-            }
-          });
-          return updatedAlbums;
-        });
-      });
-
-  }, [page]);
-
-
-  // const genreAlb = [];
-
-  //   genreAlbumsId.forEach(id => {
-
-  //    if (albums.find(a => a.id === id)) {
-  //       genreAlb.push(albums);
-  //     };
-
-  //   })
-
-    // console.log(genreAlb)
-
+   useEffect( ()=> {
+              const fetchAllbums= async () => {
+              try {
+      
+             const res = await fetch(`http://localhost:8000/Albums?page=${page}&limit=20`);
+      
+             if(!res.ok) {
+              console.error(`Erreur HTTP ! statut : ${res.status}`);
+             }
+                  const data = await res.json();
+                      console.log(data)
+                      setAlbums((prevAlbums) => {
+                        const updatedAlbums = [...prevAlbums];
+                        data.forEach(album => {
+                          if (!updatedAlbums.find(a => a.id === album.id)) {
+              
+                            updatedAlbums.push(album);
+                          }
+                        });
+                        return updatedAlbums;
+                      });
+              } catch(error) {
+                  console.error(`Erreur lors de la requête : ${error}`)
+              }}
+      
+              fetchAllbums();
+          }, [page]);
+      
+      
 
 
   function NavigateDetails({ albumP, onClick }) {
@@ -105,6 +100,8 @@ function GenreDetails() {
   }
 
 
+
+  
 
   const handleScroll = () => {
 
@@ -130,7 +127,7 @@ function GenreDetails() {
 
 
       {albums.map(album => (
-        <NavigateDetails albumP={album} onClick={() => handleClick(album.id)} />
+        <NavigateDetails  key={album.id} albumP={album} onClick={() => handleClick(album.id)} />
       ))}
 
       <TopButton />
